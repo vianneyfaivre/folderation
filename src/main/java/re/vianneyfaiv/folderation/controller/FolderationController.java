@@ -1,20 +1,26 @@
 package re.vianneyfaiv.folderation.controller;
 
-import re.vianneyfaiv.folderation.logic.AudioFolderBusiness;
+import java.time.Duration;
+
 import re.vianneyfaiv.folderation.model.AudioFolder;
+import re.vianneyfaiv.folderation.model.AudioLibrary;
 
 public class FolderationController {
 
-	private AudioFolderBusiness audioFolderBusiness = new AudioFolderBusiness();
-
 	public void process(String targetPath) {
 
-		AudioFolder folder = new AudioFolder(targetPath);
+		AudioLibrary library = new AudioLibrary(targetPath);
 
-		long durationInSec = this.audioFolderBusiness.computeTotalDuration(folder);
+		for(AudioFolder folder : library.getAudioFolders()) {
 
-		String newFolderName = this.audioFolderBusiness.getNewFolderName(folder, durationInSec);
+			Duration duration = folder.getAudioDuration();
 
-		this.audioFolderBusiness.renameFolder(folder, newFolderName);
+			String newFolderName = folder.getNewFolderName(duration);
+
+			boolean renamed = folder.renameTo(newFolderName);
+			if(!renamed) {
+				System.err.println(String.format("Failed to rename folder %s to %s", folder.getName(), newFolderName));
+			}
+		}
 	}
 }
